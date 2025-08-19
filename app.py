@@ -108,7 +108,7 @@ def get_row_explainer():
     n = len(feature_names)
     min_evals = 2 * n + 1            # SHAP's minimum
     bg_small = bg_np[:30] if bg_np.shape[0] > 30 else bg_np
-    pred_fn = lambda x: rf_model.joblib.xz.predict_proba(x)[:, 1]  # NumPy path = faster
+    pred_fn = lambda x: rf_model.predict_proba(x)[:, 1]  # NumPy path = faster
     return shap.explainers.Permutation(
         pred_fn,
         masker=shap.maskers.Independent(bg_small),
