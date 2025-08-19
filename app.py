@@ -3,6 +3,7 @@ from pathlib import Path
 
 st.set_page_config(page_title="Loan Default Risk", layout="wide")
 
+
 import base64
 
 def set_background(img_path: str, panel_opacity: float = 0.88, blur_px: int = 2):
@@ -37,7 +38,7 @@ set_background("artifacts/bg.jpg", panel_opacity=0.85, blur_px=2)
 
 
 # --- Load artifacts ---
-MODEL_PATH = Path("model/rf_model.joblib.xz") if Path("model/rf_model.joblib.xz").exists() else Path("model/rf_model.pkl")
+MODEL_PATH = Path("model/rf_model.joblib.xz")
 FEATS_PATH = Path("model/feature_names.json")
 CFG_PATH   = Path("config.json")
 BAR_PATH   = Path("artifacts/shap_bar_rf.png")
@@ -46,7 +47,14 @@ DEFAULTS_PATH = Path("artifacts/defaults.json")
 BINARY_PATH   = Path("artifacts/binary_cols.json")
 BG_PATH       = Path("artifacts/bg_sample.npy")
 
-rf_model = joblib.load(MODEL_PATH)
+try:
+    rf_model = joblib.load(MODEL_PATH)
+except Exception as e:
+    import streamlit as st
+    st.error(f"Failed to load model: {e}")
+    raise
+
+rf = joblib.load("model/rf_model.joblib.xz")
 feature_names = json.loads(Path(FEATS_PATH).read_text())
 AGE_COL = next((c for c in ["DAYS_BIRTH","AGE_YEARS","YEARS_BIRTH","AGE"] if c in feature_names), None)
 config = json.loads(Path(CFG_PATH).read_text()) if CFG_PATH.exists() else {"threshold": 0.20}
@@ -100,7 +108,7 @@ def get_row_explainer():
     n = len(feature_names)
     min_evals = 2 * n + 1            # SHAP's minimum
     bg_small = bg_np[:30] if bg_np.shape[0] > 30 else bg_np
-    pred_fn = lambda x: rf_model.predict_proba(x)[:, 1]  # NumPy path = faster
+    pred_fn = lambda x: rf_model.joblib.xz.predict_proba(x)[:, 1]  # NumPy path = faster
     return shap.explainers.Permutation(
         pred_fn,
         masker=shap.maskers.Independent(bg_small),
