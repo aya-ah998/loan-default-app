@@ -1,26 +1,7 @@
 import json, joblib, numpy as np, pandas as pd, streamlit as st, shap, os
 from pathlib import Path
-import os, traceback, streamlit as st
 
-def show_exc(e: Exception):
-    st.error(f"{type(e).__name__}: {e}")
-    st.code("".join(traceback.format_exc()), language="python")
-
-def require_file(path: str, optional: bool = False):
-    if os.path.exists(path):
-        return True
-    if optional:
-        return False
-    st.error(f"Missing required file: {path}")
-    st.stop()
-    
 st.set_page_config(page_title="Loan Default Risk", layout="wide")
-
-import streamlit as st, traceback
-
-def show_exc(e: Exception):
-    st.error(f"{type(e).__name__}: {e}")
-    st.code("".join(traceback.format_exc()), language="python")
 
 import base64
 
